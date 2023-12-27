@@ -153,17 +153,17 @@ namespace SDFNav
             float minDistance = box.VoxelSize * 0.7f;
             for (int x = bound.Min.x; x < bound.Min.x + bound.Size.x; x++)
             {
-                for (int y = bound.Min.y; y < bound.Min.y + bound.Size.y; y++)
+                for (int z = bound.Min.z; z < bound.Min.z + bound.Size.z; z++)
                 {
                     BitArray voxel = null;
-                    for (int z = bound.Min.z; z < bound.Min.z + bound.Size.z; z++)
+                    for (int h = bound.Min.y; h < bound.Min.y + bound.Size.y; h++)
                     {
-                        Vector3 point = box.OriginPoint + new Vector3(x, y, z) * halfVoxelSize;
+                        Vector3 point = box.OriginPoint + new Vector3(x, h, z) * halfVoxelSize;
                         float distance = DistanceToTriangle(point, a, b, c);
                         if (distance < minDistance)
                         {
-                            voxel ??= box.Get(x, y);
-                            voxel[z] = true;
+                            voxel ??= box.Get(x, z);
+                            voxel[h] = true;
                         }
                     }
                 }

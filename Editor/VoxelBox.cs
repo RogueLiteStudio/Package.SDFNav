@@ -21,17 +21,17 @@ namespace SDFNav
             Size.x = Mathf.CeilToInt(bounds.size.x / voxelSize);
             Size.y = Mathf.CeilToInt(bounds.size.y / voxelSize);
             Size.z = Mathf.CeilToInt(bounds.size.z / voxelSize);
-            Voxels = new BitArray[Size.x * Size.y];
+            Voxels = new BitArray[Size.x * Size.z];
         }
         public BitArray Get(int x, int y)
         {
-            if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
+            if (x < 0 || x >= Size.x || y < 0 || y >= Size.z)
                 return null;
             int idx = y * Size.x + x;
             var voxel = Voxels[idx];
             if (voxel == null)
             {
-                voxel = new BitArray(Size.z);
+                voxel = new BitArray(Size.y);
                 Voxels[idx] = voxel;
             }
             return voxel;
