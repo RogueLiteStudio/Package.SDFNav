@@ -1,7 +1,9 @@
 {
     "name": "SDFNav.Editor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "SDFNav.Runtime"
+    ],
     "includePlatforms": [
         "Editor"
     ],

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace SDFNav
 {
+    //暂时不用，使用Navmesh生成
     public class VoxelBox
     {
         public Vector3 OriginPoint;
