@@ -32,7 +32,7 @@ namespace TSDFNav
             TFloat v1 = Data[idx + 1];
             TFloat v2 = Data[idx + Width];
             TFloat v3 = Data[idx + Width + 1];
-            TFloat v = (v0 * (TFloat.One - rx) + v1 * rx) * (TFloat.One - ry) + (v2 * (TFloat.one - rx) + v3 * rx) * ry;
+            TFloat v = (v0 * (TFloat.One - rx) + v1 * rx) * (TFloat.One - ry) + (v2 * (TFloat.One - rx) + v3 * rx) * ry;
             return (v/255) *(Max - Min) + Min;
         }
         public void Write(System.IO.BinaryWriter writer)
