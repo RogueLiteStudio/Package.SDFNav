@@ -14,6 +14,86 @@ namespace SDFNav.Editor
                     indices[i] = newIdx;
             }
         }
+        private static Vector3[] cornersCaches = new Vector3[8];
+        public static Bounds TransformBounds(Bounds localBounds, Matrix4x4 localToWorldMatrix)
+        {
+            // 计算Bounds的八个角点在世界坐标中的位置
+            Vector3 center = localToWorldMatrix.MultiplyPoint3x4(localBounds.center);
+            Vector3 extents = localBounds.extents;
+            cornersCaches[0] = center + localToWorldMatrix.MultiplyVector(new Vector3(extents.x, extents.y, extents.z));
+            cornersCaches[1] = center + localToWorldMatrix.MultiplyVector(new Vector3(-extents.x, extents.y, extents.z));
+            cornersCaches[2] = center + localToWorldMatrix.MultiplyVector(new Vector3(extents.x, -extents.y, extents.z));
+            cornersCaches[3] = center + localToWorldMatrix.MultiplyVector(new Vector3(-extents.x, -extents.y, extents.z));
+            cornersCaches[4] = center + localToWorldMatrix.MultiplyVector(new Vector3(extents.x, extents.y, -extents.z));
+            cornersCaches[5] = center + localToWorldMatrix.MultiplyVector(new Vector3(-extents.x, extents.y, -extents.z));
+            cornersCaches[6] = center + localToWorldMatrix.MultiplyVector(new Vector3(extents.x, -extents.y, -extents.z));
+            cornersCaches[7] = center + localToWorldMatrix.MultiplyVector(new Vector3(-extents.x, -extents.y, -extents.z));
+
+            // 初始化新的Bounds
+            Bounds worldBounds = new Bounds(cornersCaches[0], Vector3.zero);
+            foreach (Vector3 corner in cornersCaches)
+            {
+                worldBounds.Encapsulate(corner);
+            }
+
+            return worldBounds;
+        }
+
+        public static Bounds CalculateBounds(List<NavMeshBuildSource> sources)
+        {
+            Bounds bounds = new Bounds();
+            foreach (var source in sources)
+            {
+                switch (source.shape)
+                {
+                    case NavMeshBuildSourceShape.Mesh:
+                        if (source.sourceObject is Mesh mesh)
+                        {
+                            var b = TransformBounds(mesh.bounds, source.transform);
+                            if (bounds.size == Vector3.zero)
+                                bounds = b;
+                            else
+                                bounds.Encapsulate(b);
+                        }
+                	    break;
+                }
+            }
+            return bounds;
+        }
+
+        public static List<NavMeshBuildSource> BuildSources(GameObject root, System.Func<GameObject, bool> checkFunc)
+        {
+            var meshFilters = root.GetComponentsInChildren<MeshFilter>();
+            List<NavMeshBuildSource> sources = new List<NavMeshBuildSource>();
+            foreach (var filter in meshFilters)
+            {
+                if (checkFunc ==null || checkFunc(filter.gameObject))
+                {
+                    var source = new NavMeshBuildSource
+                    {
+                        shape = NavMeshBuildSourceShape.Mesh,
+                        sourceObject = filter.sharedMesh,
+                        transform = filter.transform.localToWorldMatrix,
+                        component = filter,
+                        area = 0,
+                    };
+                    sources.Add(source);
+                }
+            }
+            return sources;
+        }
+
+        public static NavMeshTriangulation BuildNavMeshData(List<NavMeshBuildSource> sources, Bounds bounds, NavMeshBuildSettings settings)
+        {
+            NavMeshData navmesh = NavMeshBuilder.BuildNavMeshData(settings, sources, bounds, Vector3.zero, Quaternion.identity);
+            NavMesh.RemoveAllNavMeshData();
+            NavMesh.AddNavMeshData(navmesh);
+            NavMeshBuilder.UpdateNavMeshData(navmesh, settings, sources, bounds);
+            var triangulation = NavMesh.CalculateTriangulation();
+            NavMesh.RemoveAllNavMeshData();
+            return triangulation;
+        }
+
         //重新对navmesh的数据进行梳理：1 过滤掉距离过小的三角形，把顶点合并成一个 2：过滤掉平均高度超过指定数值的三角形
         public static MeshData NavToMesh(NavMeshTriangulation triangulation,  float reachHeight = 0.5f)
         {

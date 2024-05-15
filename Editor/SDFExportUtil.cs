@@ -13,6 +13,17 @@ namespace SDFNav.Editor
         {
             return new Vector2(v.x, v.y);
         }
+
+        public static TSDFNav.SDFData EdgeToTSDF(EdgeData edgeData, SubMeshData subMesh, float adjust, float grain = 0.5f)
+        {
+            var data = EdgeToSDF(edgeData, subMesh, adjust, grain);
+            if (data == null)
+                return null;
+            var tsdfData = new TSDFNav.SDFData();
+            tsdfData.Init(data.Width, data.Height, data.Grain, data.Scale, data.Origin.ToTVec2(), data.Data);
+            return tsdfData;
+        }
+
         public static SDFData EdgeToSDF(EdgeData edgeData, SubMeshData subMesh, float adjust, float grain = 0.5f)
         {
             var rect = EdgeEditorUtil.CalcBounds(edgeData, 1);

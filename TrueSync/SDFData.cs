@@ -18,6 +18,7 @@ namespace TSDFNav
         public TFloat Grain => grain;
         public TFloat Scale => scale;
         public TVector2 Origin => origin;
+        public short[] Data => data;
         public short this[int x, int y]
         {
             get

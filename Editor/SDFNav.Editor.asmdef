@@ -2,7 +2,10 @@
     "name": "SDFNav.Editor",
     "rootNamespace": "",
     "references": [
-        "SDFNav.Runtime"
+        "SDFNav.Runtime",
+        "SDFNav.TrueSync",
+        "Common.Runtime",
+        "Common.Unity"
     ],
     "includePlatforms": [
         "Editor"

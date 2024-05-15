@@ -18,6 +18,7 @@ namespace SDFNav
         public float Grain => grain;
         public float Scale => scale;
         public Vector2 Origin => origin;
+        public short[] Data => data;
         public short this[int x, int y]
         {
             get
