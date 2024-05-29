@@ -63,7 +63,7 @@ namespace SDFNav.Editor
                     DebugDrawUtil.DrawSDFResult(SDFResult, Edge);
                 }
             }
-            SDFPreview.OnSceneGUI();
+            SDFPreview.OnDrawGizmo(Matrix4x4.identity);
             PathFinderDebug.OnSceneGUI();
         }
     }

@@ -14,6 +14,49 @@ namespace SDFNav.Editor
         public string ShowInfo;
         public float Height = 0.1f;
 
+        public void Build(TSDFNav.SDFData data)
+        {
+            Clear();
+            ShowInfo = $"宽：{data.Width} \n长：{data.Height} \n采样精度：{data.Grain} \n 缩放精度：{data.Scale}";
+            SDFTexture = SDFExportUtil.ToTextureWithDistance(data);
+            SDFTexture.hideFlags = HideFlags.HideAndDontSave;
+            Vector3 origin = new Vector3((float)data.Origin.x, 0, (float)data.Origin.y);
+            float width = data.Width * (float)data.Grain;
+            float height = data.Height * (float)data.Grain;
+            PlaneMesh = new Mesh
+            {
+                hideFlags = HideFlags.HideAndDontSave,
+                vertices = new Vector3[]
+                {
+                    origin,
+                    origin + new Vector3(0, 0, height),
+                    origin + new Vector3(width, 0, height),
+                    origin + new Vector3(width, 0, 0),
+                },
+                uv = new Vector2[]
+                {
+                    new Vector2(0, 0),
+                    new Vector2(0, 1),
+                    new Vector2(1, 1),
+                    new Vector2(1, 0),
+                },
+                triangles = new int[]
+                {
+                    0, 1, 2,
+                    2, 3, 0,
+                }
+            };
+            PlaneMesh.RecalculateNormals();
+            var shader = Shader.Find("SDFPreview");
+            if (shader)
+            {
+                Mat = new Material(shader);
+                Mat.hideFlags = HideFlags.HideAndDontSave;
+                Mat.SetTexture("_MainTex", SDFTexture);
+                Mat.doubleSidedGI = true;
+            }
+        }
+
         public void Build(SDFData data)
         {
             Clear();
@@ -74,7 +117,7 @@ namespace SDFNav.Editor
             }
         }
 
-        public void OnSceneGUI()
+        public void OnDrawGizmo(Matrix4x4 matrix)
         {
             if (Event.current.type != EventType.Repaint)
                 return;
@@ -82,7 +125,7 @@ namespace SDFNav.Editor
             {
                 Mat.SetFloat("_OffsetA", ShowEnableAlpha ? 0 : 1);
                 CommandBuffer commandBuffer = new CommandBuffer();
-                commandBuffer.DrawMesh(PlaneMesh, Matrix4x4.Translate(new Vector3(0, Height, 0)), Mat);
+                commandBuffer.DrawMesh(PlaneMesh, matrix * Matrix4x4.Translate(new Vector3(0, Height, 0)), Mat);
                 Graphics.ExecuteCommandBuffer(commandBuffer);
             }
         }

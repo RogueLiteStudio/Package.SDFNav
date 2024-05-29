@@ -82,7 +82,7 @@ namespace mygame
         private void OnSceneGUI(SceneView view)
         {
             if(ShowSDF)
-                MainRender?.OnSceneGUI();
+                MainRender?.OnDrawGizmo(Matrix4x4.identity);
 
             if (ShowHeightMap)
                 HeightMap?.OnSceneGUI();
